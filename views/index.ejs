@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+
+<% include ./head %>
+	
+<body>
+	<% include ./navigation %>
+
+	<div class="content-wrap">
+		<% if (allPolls) { %>
+		   <% allPolls.forEach(poll => { %>
+		   	<div><h2><%= poll['question'] %></h2>	
+		   	
+					<% for (var prop in poll['options']) { %>
+					  <h4><%= prop +':'+ poll['options'][prop] %></h4>
+					<% } %>
+					Created by: <%= poll['creator'] %>
+				</div><br>
+		 	<% }) %>
+		 <% } %>
+	</div>
+</body>
+
+</html>

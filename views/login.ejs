@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+
+<% include ./head %>
+
+<body>
+	<% include ./navigation %>
+	
+	<div class="content-wrap">
+		<form enctype="x-www-form-urlencoded" action="/login" method="post">
+			Username: <input type="text" name="username"><br>
+			Password: <input type="password" name="password"><br>
+	   	<input type="submit" value="Log in">
+		</form>
+	
+		Don't have an account?
+		<a href="/signup">Sign up</a>
+	</div>
+</body>
+
+</html>
