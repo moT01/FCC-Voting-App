@@ -7,11 +7,11 @@
 	<% include ./navigation %>
 	
 	<div class="content-wrap">
-		<div class="block">New poll</div>
 		
 		<form enctype="x-www-form-urlencoded" action="/newpoll" method="post" id="newpoll">
 			Question: <input type="text" name="newquestion"><br>
-			Option: <textarea type="textarea" form="newpoll" class="textarea" name="newoptions"></textarea><br>
+			Options (separated by commas):<br>
+			<textarea type="textarea" form="newpoll" class="textarea" name="newoptions"></textarea><br>
 	   	<input type="submit" value="Submit">
 		</form>
 	

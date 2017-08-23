@@ -5,7 +5,7 @@ var ObjectID = require('mongodb').ObjectID
 
 var app = express();
 var MONGOURI = 'mongodb://localhost:27017/'; //DEVELOPMENT
-//var MONGOURI = 'mongodb://'+process.env.USER+':'+process.env.PASS+'@'+process.env.HOST+':'+process.env.DB_PORT+'/'+process.env.DB; //DEPLOYMENT			
+//var MONGOURI = 'mongodb://'+process.env.USER+':'+process.env.PASS+'@'+process.env.HOST+':'+process.env.DB_PORT+'/'+process.env.DB; //"PRODUCTION"			
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
@@ -19,13 +19,14 @@ mongo.connect(MONGOURI, function(err, db) {
 	app.locals.user = null;
 	app.locals.usersPolls = null;
 	app.locals.allPolls = null;
+	app.locals.singlePoll = null;
 	var users = db.collection('users');
 	var polls = db.collection('polls');
 	
 	function login(req, res) {
 		users.findOne({ 'username': req.body.username, 'password': req.body.password },{ _id: 0 }, function (err, findUser) {
 			if (findUser) {
-				app.locals.user = findUser.username;				
+				app.locals.user = findUser.username;
 				polls.find().toArray(function(err, findAllPolls) {
 					app.locals.allPolls = findAllPolls;
 					return mypolls(req, res);
@@ -33,22 +34,22 @@ mongo.connect(MONGOURI, function(err, db) {
 			} else {
 				return allpolls(req, res);
 			}
-	   });
-	}
+	   }); //end users.findOne()
+	} //end login()
 
 	function mypolls(req, res) {
 		polls.find({ 'creator': app.locals.user },{ creator: 0 }).toArray(function(err, findUsersPolls) {
 			app.locals.usersPolls = findUsersPolls;
 			return res.render('mypolls');
 		});
-	}
-	
+	} //end mypolls()
+
 	function allpolls(req, res) {
 		polls.find().toArray(function(err, findAllPolls) {
 			app.locals.allPolls = findAllPolls;
 			return res.render('index');
 		});
-	}
+	} //end allpolls()
 
 	app.get('/', allpolls)
 	
@@ -87,13 +88,32 @@ mongo.connect(MONGOURI, function(err, db) {
 			options[optionArray[i]] = 0;
 		}
 		
-		polls.insert({ 'creator':app.locals.user, 'question': req.body.newquestion, 'options': options });
-		return mypolls(req, res);
+		polls.insert({ 'creator':app.locals.user, 'question': req.body.newquestion, 'options': options }, function(err, result) {
+			return mypolls(req, res);		
+		});
 	});
 
-	app.get('/delete/:id', function(req, res){		
-		polls.remove({ _id : ObjectID(req.params.id) });
-		return mypolls(req, res);
+	app.post('/vote/:id', function(req, res){	
+		if (req.body.voteOptions === "Add option") {
+			polls.update({ _id : ObjectID(req.params.id)}, { $inc: { ["options."+req.body.newOption] : 1 } }, { upsert: true });
+			return allpolls(req, res);
+		} else {		
+			polls.update({ _id : ObjectID(req.params.id)}, { $inc: { ["options."+req.body.voteOptions] : 1 } }, { upsert: true });
+			return allpolls(req, res);
+		}
+	});
+	
+	app.get('/delete/:id', function(req, res){
+		polls.remove({ _id : ObjectID(req.params.id)}, function(err, result) {	
+			return mypolls(req, res);
+		});
+	});
+	
+	app.get('/share/:id', function(req, res){
+		polls.find({ '_id' : ObjectID(req.params.id)}).toArray(function(err, findSinglePoll) {
+			app.locals.singlePoll = findSinglePoll[0];	
+			return res.render('singlepoll');
+		});
 	});
 	
 	app.get('/logout', function(req, res){
