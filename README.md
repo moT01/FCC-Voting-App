@@ -1,5 +1,5 @@
 ## FCC-Voting-App
-##### Voting App project for [freecodecamp.com](https://www.freecodecamp.org/challenges/build-a-voting-app)
+##### Voting App project for [freeCodeCamp](https://www.freecodecamp.org/)
 ##### Check it out [here](https://vote-app.glitch.me/)
 
 <br/>
@@ -23,6 +23,8 @@
 ##### Technologies used to complete this project
 - HTML
 - CSS
-- NodeJS
+- Javascript
+- Chart.js
+- Node
 - Express
 
